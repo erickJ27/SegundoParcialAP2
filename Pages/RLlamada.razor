@@ -1,0 +1,164 @@
+﻿@page "/RLlamada"
+<h3>Registro de llamada</h3>
+<EditForm Model="llamadas" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <label for="LlamadaId">LlamadaId</label>
+    <div class="form-inline">
+
+        <InputNumber @bind-Value="llamadas.LlamadaId" class="form-control" />
+        <button type="button" @onclick="Buscar" class="btn btn-primary">Buscar</button>
+    </div>
+    <div class="form-group">
+        <label for="Descripcion">Descripcion</label>
+        <InputText @bind-Value="llamadas.Descripcion" class="form-control" />
+    </div>
+
+    <div class="form-row">
+        <div class="form-group mb-4">
+            <label for="Problema">Problema</label>
+            <InputText @bind-Value="PProblema" class="form-control" />
+        </div>
+        <div class="form-group mb-4">
+            <label for="Solucion">Solucion</label>
+            <InputText @bind-Value="SSolucion" class="form-control" />
+        </div>
+        <button type="button" @onclick="AgregarProblema" class="btn btn-primary mb-2">Agregar</button>
+    </div>
+    <div class="form-group">
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Id</th>
+                    <th>Problema</th>
+                    <th>Solucion</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (llamadas.Detalle == null)
+                {
+
+                }
+                else
+                {
+                    @foreach (var item in llamadas.Detalle)
+                    {
+                        <tr>
+                            <th>@item.LlamadaDetalleId</th>
+                            <th>@item.Problema</th>
+                            <th>@item.Solucion</th>
+                            <th><button type="button" class="btn btn-outline-danger btn-sm" @onclick="(()=> EliminarProblema(item))">Eliminar</button></th>
+
+
+                        </tr>
+                    }
+                }
+
+            </tbody>
+        </table>
+        <h5>@Mensaje</h5>
+        <ValidationSummary />
+    </div>
+    <div class="form-row">
+        <button type="button" @onclick="Nuevo" class="btn btn-primary mb-3">Nuevo</button>
+        <button type="submit" class="btn btn-success mb-3">Guardar</button>
+        <button type="button" @onclick="Eliminar" class="btn btn-danger mb-3">Eliminar</button>
+    </div>
+
+
+</EditForm>
+
+@code {
+    public Llamada llamadas = new Llamada();
+    public string PProblema;
+    public string SSolucion;
+    public string Mensaje;
+    
+    public void Limpiar()
+    {
+        llamadas = new Llamada();
+        PProblema = string.Empty;
+        SSolucion = string.Empty;
+        Mensaje = string.Empty;
+     
+    }
+    public void Nuevo()
+    {
+        llamadas = new Llamada();
+        Mensaje = string.Empty;
+    }
+
+    public void Guardar()
+    {
+        LlamadasController db = new LlamadasController();
+
+
+        if (db.Guardar(llamadas))
+        {
+            Limpiar();
+            Mensaje = "Guardado";
+        }
+
+        else
+        {
+            Mensaje = "No se pudo guardar";
+        }
+    }
+    public void Buscar()
+    {
+        LlamadasController db = new LlamadasController();
+        Llamada llamadaTemp;
+
+        if (llamadas.LlamadaId > 0)
+        {
+            llamadaTemp = db.Buscar(llamadas.LlamadaId );
+
+            if (llamadaTemp != null)
+                llamadas = llamadaTemp;
+            else
+                Mensaje = "llamada no encontrada";
+        }
+    }
+    public void Eliminar()
+    {
+        LlamadasController db = new LlamadasController();
+        if (llamadas.LlamadaId != 0)
+        {
+            if (db.Buscar(llamadas.LlamadaId) != null)
+            {
+                db.Eliminar(llamadas.LlamadaId);
+                Mensaje = "Eliminado con exito";
+                Limpiar();
+
+            }
+            else
+            {
+                Mensaje = "No se puede eliminar una llamada que no existe";
+            }
+
+        }
+        else
+        {
+            Mensaje = "Seleccione un id";
+        }
+    }
+
+
+
+    public void AgregarProblema()
+    {
+
+        llamadas.Detalle.Add(new LlamadaDetalle()
+        {
+            LlamadaId = llamadas.LlamadaId,
+            Problema=PProblema,
+            Solucion=SSolucion
+        }) ;
+
+
+    }
+    private void EliminarProblema(LlamadaDetalle detalle)
+    {
+        llamadas.Detalle.Remove(detalle);
+    }
+}

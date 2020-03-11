@@ -1,0 +1,47 @@
+﻿@page "/CLlamada"
+<h3>Consulta de llamadas</h3>
+
+<table class="table table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>LlamadaId</th>
+            <th>Descripcion</th>
+            
+            
+            
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var lla in Lista)
+        {
+            <tr>
+                <td>@lla.LlamadaId</td>
+                <td>@lla.Descripcion</td>
+                
+            </tr>
+
+        }
+    </tbody>
+
+
+</table>
+@code {
+    public List<Llamada> Lista { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Lista = new List<Llamada>();
+
+        await Task.Run(() => { Cargar(); });
+
+
+    }
+    
+
+    private void Cargar()
+    {
+        LlamadasController db = new LlamadasController();
+
+        Lista = db.GetList(a => true);
+    }
+}
