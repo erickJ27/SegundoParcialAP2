@@ -11,6 +11,7 @@ namespace SegundoParcialApli2.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder.UseSqlite(@"Data Source=Database/Parcial2.db"));
+
         }
     }
 }
